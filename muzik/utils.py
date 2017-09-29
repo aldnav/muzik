@@ -41,6 +41,7 @@ def insert_from_csv():
                 artist=artist
             )
 
+
 def get_info_from_musicbrainz():
     for artist in Artist.objects.all():
         results = {}
@@ -52,8 +53,8 @@ def get_info_from_musicbrainz():
             if results['artist-count'] > 0:
                 # get the result with the highest lucene score
                 result = max(
-                        results['artist-list'],
-                        key=lambda x: int(x['ext:score']))
+                    results['artist-list'],
+                    key=lambda x: int(x['ext:score']))
                 artist.gender = result.get('gender', '')
                 artist.disambiguation = result.get('disambiguation', '')
                 area = result.get('area', '')
@@ -65,37 +66,49 @@ def get_info_from_musicbrainz():
 
 
 def get_info_from_last_fm():
-    for song in Song.objects.all():
+    for song in Song.objects.filter(pk__gt=54):
         track = network.get_track(song.artist.name, song.title)
-        if track:
-            l_duration = track.get_duration()
-            l_listener_count = track.get_listener_count()
-            l_play_count = track.get_playcount()
-            song.duration = l_duration
-            song.listener_count = l_listener_count
-            song.play_count = l_play_count
+        try:
+            track.get_duration()
+        except Exception as e:
+            print e
+        else:
+            if track:
+                l_duration = track.get_duration()
+                l_listener_count = track.get_listener_count()
+                l_play_count = track.get_playcount()
+                song.duration = l_duration
+                song.listener_count = l_listener_count
+                song.play_count = l_play_count
 
-            try:
-                l_album = track.get_album()
-                album, _ = Album.objects.get_or_create(
-                    title=l_album.title)
-                if album:
-                    album.release_date = l_album.get_release_date()
-                    album.listener_count = l_album.get_listener_count()
-                    album.play_count = l_album.get_playcount()
-            except Exception as e:
-                print e
-            else:
-                album.save()
-                song.album = album
-            song.save()
+                try:
+                    l_album = track.get_album()
+                    if l_album is None:
+                        continue
+                    album, _ = Album.objects.get_or_create(
+                        title=l_album.title)
+                    if album:
+                        album.release_date = l_album.get_release_date()
+                        album.listener_count = l_album.get_listener_count()
+                        album.play_count = l_album.get_playcount()
+                except Exception as e:
+                    print e
+                else:
+                    album.save()
+                    song.album = album
+                song.save()
 
         l_artist = network.get_artist(song.artist.name)
-        if l_artist:
-            song.artist.bio = str(l_artist.get_bio_summary())
-            song.artist.listener_count = l_artist.get_listener_count()
-            song.artist.play_count = l_artist.get_playcount()
-            song.artist.save()
+        try:
+            l_artist.get_playcount()
+        except Exception as e:
+            print e
+        else:
+            if l_artist:
+                song.artist.bio = str(l_artist.get_bio_summary())
+                song.artist.listener_count = l_artist.get_listener_count()
+                song.artist.play_count = l_artist.get_playcount()
+                song.artist.save()
 
 
 def get_music():
