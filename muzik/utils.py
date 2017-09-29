@@ -98,8 +98,8 @@ def get_info_from_last_fm():
             song.artist.save()
 
 
-def main():
-    # request_stream_list()
+def get_music():
+    request_stream_list()
     insert_from_csv()
     get_info_from_musicbrainz()
     get_info_from_last_fm()
