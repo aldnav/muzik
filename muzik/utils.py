@@ -3,13 +3,14 @@ import musicbrainzngs as mb
 import requests
 import pylast
 
+from datetime import date
+from django.conf import settings
+from .models import Album, Artist, Song
+
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-from django.conf import settings
-
-from .models import Album, Artist, Song, Tag
 
 spotifycharts = "https://spotifycharts.com/regional/global/daily/latest/download"
 STREAMS_INPUT = settings.APP_STREAMS_CSV
@@ -111,12 +112,39 @@ def get_info_from_last_fm():
                 song.artist.save()
 
 
+def get_album_info():
+    for song in Song.objects.all():
+        results = mb.search_releases(artist=song.artist.name,
+                                     tracks=song.title)
+        result = max(
+            results['release-list'],
+            key=lambda x: int(x['ext:score']))
+        if result is None:
+            continue
+        album = song.album
+        if song.album is None:
+            album = Album.objects.create(title=song.title)
+        album.title = result.get('title')
+        album.country = result.get('country', '')
+        if 'date' in result:
+            _date = result['date'].split('-')
+            try:
+                album.release_date = date(*map(int, _date))
+            except Exception as e:
+                print e
+                print _date
+        if 'label-info-list' in result and len(result['label-info-list']) > 0:
+            album.label = result['label-info-list'][0]['label']['name']
+        album.save()
+
+
 def get_music():
-    request_stream_list()
-    insert_from_csv()
-    get_info_from_musicbrainz()
-    get_info_from_last_fm()
+    # request_stream_list()
+    # insert_from_csv()
+    # get_info_from_musicbrainz()
+    # get_info_from_last_fm()
+    get_album_info()
 
 
 if __name__ == '__main__':
-    main()
+    get_music()

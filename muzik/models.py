@@ -16,9 +16,11 @@ class Artist(models.Model):
 
 class Album(models.Model):
     title = models.CharField(max_length=254)
-    # release_date = models.DateField(null=True, blank=True)
+    release_date = models.DateField(null=True, blank=True)
     play_count = models.IntegerField(null=True, blank=True)
     listener_count = models.IntegerField(null=True, blank=True)
+    country = models.CharField(max_length=64, blank=True)
+    label = models.CharField(max_length=254, blank=True)
 
 
 class Tag(models.Model):
