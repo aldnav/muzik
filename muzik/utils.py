@@ -123,7 +123,7 @@ def get_album_info():
             continue
         album = song.album
         if song.album is None:
-            album = Album.objects.create(title=song.title)
+            album, _ = Album.objects.get_or_create(title=song.title)
         album.title = result.get('title')
         album.country = result.get('country', '')
         if 'date' in result:
@@ -136,13 +136,14 @@ def get_album_info():
         if 'label-info-list' in result and len(result['label-info-list']) > 0:
             album.label = result['label-info-list'][0]['label']['name']
         album.save()
+        song.save()
 
 
 def get_music():
     # request_stream_list()
     # insert_from_csv()
     # get_info_from_musicbrainz()
-    # get_info_from_last_fm()
+    get_info_from_last_fm()
     get_album_info()
 
 
