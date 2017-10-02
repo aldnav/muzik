@@ -4,6 +4,7 @@ import requests
 import pylast
 
 from datetime import date
+from uuid import uuid4
 from django.conf import settings
 from .models import Album, Artist, Song
 
@@ -86,8 +87,12 @@ def get_info_from_last_fm():
                     l_album = track.get_album()
                     if l_album is None:
                         continue
-                    album, _ = Album.objects.get_or_create(
-                        title=l_album.title)
+                    album = None
+                    if song.album:
+                        album = song.album
+                    else:
+                        album, _ = Album.objects.get_or_create(
+                            title=l_album.title)
                     if album:
                         album.release_date = l_album.get_release_date()
                         album.listener_count = l_album.get_listener_count()
@@ -123,7 +128,7 @@ def get_album_info():
             continue
         album = song.album
         if song.album is None:
-            album, _ = Album.objects.get_or_create(title=song.title)
+            album, _ = Album.objects.get_or_create(title=song.title + str(uuid4()))
         album.title = result.get('title')
         album.country = result.get('country', '')
         if 'date' in result:
@@ -144,7 +149,7 @@ def get_music():
     # insert_from_csv()
     # get_info_from_musicbrainz()
     get_info_from_last_fm()
-    get_album_info()
+    # get_album_info()
 
 
 if __name__ == '__main__':
