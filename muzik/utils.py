@@ -68,7 +68,7 @@ def get_info_from_musicbrainz():
 
 
 def get_info_from_last_fm():
-    for song in Song.objects.filter(pk__gt=54):
+    for song in Song.objects.all():
         track = network.get_track(song.artist.name, song.title)
         try:
             track.get_duration()
@@ -147,9 +147,9 @@ def get_album_info():
 def get_music():
     # request_stream_list()
     # insert_from_csv()
-    # get_info_from_musicbrainz()
+    get_info_from_musicbrainz()
     get_info_from_last_fm()
-    # get_album_info()
+    get_album_info()
 
 
 if __name__ == '__main__':
