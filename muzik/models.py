@@ -13,6 +13,9 @@ class Artist(models.Model):
     play_count = models.IntegerField(null=True, blank=True)
     listener_count = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Album(models.Model):
     title = models.CharField(max_length=254)
@@ -22,9 +25,15 @@ class Album(models.Model):
     country = models.CharField(max_length=64, blank=True)
     label = models.CharField(max_length=254, blank=True)
 
+    def __str__(self):
+        return self.title
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
 
 
 class Song(models.Model):
@@ -38,3 +47,6 @@ class Song(models.Model):
     listener_count = models.IntegerField(null=True, blank=True)
     play_count = models.IntegerField(null=True, blank=True)
     tags = models.ManyToManyField(Tag)
+
+    def __str__(self):
+        return '{} by {}'.format(self.title, self.artist.name)
