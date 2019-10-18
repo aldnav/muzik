@@ -8,7 +8,7 @@ name = "pypi"
 [packages]
 certifi = "==2017.7.27.1"
 chardet = "==3.0.4"
-Django = "==1.11.18"
+Django = "==1.11.23"
 idna = "==2.6"
 musicbrainzngs = "==0.6"
 MySQL-python = "==1.2.5"
